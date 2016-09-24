@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,6 +27,7 @@ public class RelativeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private Adaptador recyclerAdapter;
+    private ItemTouchHelper touchHelper;
 
     public static Fragment getInstance(String parametro){
         RelativeFragment fragmento = new RelativeFragment();
@@ -59,6 +63,9 @@ public class RelativeFragment extends Fragment {
         recyclerView.setLayoutManager( new LinearLayoutManager(getActivity().getApplicationContext()) );
         recyclerView.setAdapter( recyclerAdapter );
 
+        touchHelper = new ItemTouchHelper( new TouchCallback( recyclerAdapter, recyclerView ) );
+        touchHelper.attachToRecyclerView(recyclerView);
+
         return contenedor;
     }
 
@@ -88,11 +95,31 @@ public class RelativeFragment extends Fragment {
             public void setText( String text ){
                 rowLabel.setText( text );
             }
+
+            public void setMovementState(){
+                rowLabel.setBackgroundColor(
+                        ContextCompat.getColor( getActivity().getApplicationContext(),
+                                R.color.app_morado));
+            }
+
+            public void setIdeState(){
+                rowLabel.setBackgroundColor(
+                        ContextCompat.getColor( getActivity().getApplicationContext(),
+                                R.color.app_blanco));
+            }
         }
 
         public Adaptador( List<String> datos ){
             super();
             this.datos = datos;
+        }
+
+        public void remove(int position){
+            datos.remove(position);
+        }
+
+        public void switchItem(int position, int target){
+            Collections.swap(datos, position, target);
         }
 
         @Override
@@ -119,6 +146,57 @@ public class RelativeFragment extends Fragment {
         @Override
         public void onViewRecycled(RecyclerView.ViewHolder holder) {
             super.onViewRecycled(holder);
+        }
+    }
+
+    private class TouchCallback extends ItemTouchHelper.Callback{
+        private Adaptador adaptador;
+        private RecyclerView recycler;
+        private Adaptador.Renglon activeView;
+
+        public TouchCallback( Adaptador adaptador, RecyclerView recyclerView){
+            super();
+            this.adaptador = adaptador;
+            this.recycler = recyclerView;
+        }
+
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            return makeFlag(
+                    ItemTouchHelper.ACTION_STATE_DRAG,
+                    ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT |
+                    ItemTouchHelper.UP | ItemTouchHelper.DOWN);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            adaptador.switchItem( viewHolder.getAdapterPosition(), target.getAdapterPosition() );
+            adaptador.notifyItemMoved( viewHolder.getAdapterPosition(), target.getAdapterPosition() );
+            return true;
+        }
+
+        @Override
+        public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+            super.onSelectedChanged(viewHolder, actionState);
+
+            if( actionState == ItemTouchHelper.ACTION_STATE_DRAG ){
+                activeView = (Adaptador.Renglon)viewHolder;
+                activeView.setMovementState();
+            } else if( actionState == ItemTouchHelper.ACTION_STATE_IDLE && activeView != null ){
+                activeView.setIdeState();
+                activeView = null;
+            }
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            adaptador.remove( viewHolder.getAdapterPosition() );
+            adaptador.notifyItemRemoved( viewHolder.getAdapterPosition() );
+        }
+
+        @Override
+        public boolean isItemViewSwipeEnabled() {
+            return false;
         }
     }
 }
