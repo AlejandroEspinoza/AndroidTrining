@@ -15,8 +15,20 @@
             android:layout_weight="1"
             android:layout_height="50dp"/>
         <Button
-            android:id="@+id/btnFrame"
-            android:text="@string/btn_frame"
+            android:id="@+id/btnRelative"
+            android:text="@string/btn_relative"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"/>
+        <Button
+            android:id="@+id/btnGrid"
+            android:text="@string/btn_grid"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"/>
+        <Button
+            android:id="@+id/btnTable"
+            android:text="@string/btn_table"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="50dp"/>
