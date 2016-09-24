@@ -30,71 +30,22 @@ public class LinearFragment extends Fragment {
     public LinearFragment(){
     }
 
+    // Evalua si el usuario puede ver el fragmento
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if( isVisibleToUser ){
+            Log.i(TAG, TAG + " Es visible");
+        } else {
+            Log.i(TAG, TAG + " No es visible");
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View contenedor = inflater.inflate(R.layout.fragment_linear, container, false);
         return contenedor;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        if( context == null ){
-            Log.i( TAG, "Attached to null");
-        } else if( context instanceof  MainActivity ){
-            Log.i( TAG, "Attached to MainActivity");
-        } else {
-            Log.i( TAG, "Attached to " + context.getClass().getSimpleName());
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        Log.i( TAG, "Detached");
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i( TAG, "On Create");
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        Log.i( TAG, "On Start");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        Log.i( TAG, "On Resume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Log.i( TAG, "On Pause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        Log.i( TAG, "On Stop");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        Log.i( TAG, "On Destroy");
     }
 }
