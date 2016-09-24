@@ -6,4 +6,22 @@
     <string name="lbl_left">Izquierda</string>
     <string name="lbl_right">Derecha</string>
 
+    <string name="btn_linear">Linear</string>
+    <string name="btn_frame">Frame</string>
+    <string name="btn_relative">Relative</string>
+    <string name="btn_grid">Grid</string>
+    <string name="btn_table">Tabla</string>
+
+    <string name="lbl_uno">Uno</string>
+    <string name="lbl_dos">Dos</string>
+    <string name="lbl_tres">Tres</string>
+    <string name="lbl_cuatro">Cuatro</string>
+    <string name="lbl_cinco">Cinco</string>
+    <string name="lbl_seis">Seis</string>
+    <string name="lbl_siete">Siete</string>
+    <string name="lbl_ocho">Ocho</string>
+    <string name="lbl_nueve">Nueve</string>
+    <string name="lbl_dies">Dies</string>
+    <string name="lbl_once">Once</string>
+
 </resources>

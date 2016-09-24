@@ -1,18 +1,39 @@
 package com.android.training.androidtrining;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.FrameLayout;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getCanonicalName();
 
+    private Button btnLinear;
+    private Button btnFrame;
+    private FrameLayout contenedor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_principal);
+
+        btnLinear = (Button) findViewById(R.id.btnLinear);
+        btnFrame =  (Button) findViewById(R.id.btnFrame);
+        contenedor =  (FrameLayout) findViewById(R.id.contenedor);
+
+        setFragment( LinearFragment.getInstance(TAG) );
 
         Log.i( TAG, "On Create");
+    }
+
+    private void setFragment(Fragment fragment){
+        FragmentManager manager = this.getSupportFragmentManager();
+        manager .beginTransaction()
+                .add(R.id.contenedor, fragment, fragment.getClass().getSimpleName())
+                .commit();
     }
 
     @Override
