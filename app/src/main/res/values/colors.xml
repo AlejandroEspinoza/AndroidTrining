@@ -5,5 +5,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="app_azul">#0099ff</color>
+    <color name="app_blanco">#ffffff</color>
+    <color name="app_morado">#9933ff</color>
 
 </resources>

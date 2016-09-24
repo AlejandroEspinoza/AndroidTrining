@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">AndroidTrining</string>
 
+    <string name="lbl_recycler">Recycler View</string>
+
     <string name="lbl_top">Arriba</string>
     <string name="lbl_botom">Abajo</string>
     <string name="lbl_left">Izquierda</string>

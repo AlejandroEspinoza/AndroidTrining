@@ -11,32 +11,19 @@
 
     <TextView
         android:id="@+id/arriba"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:textSize="35sp"
-        android:text="@string/lbl_top" />
-    <TextView
-        android:id="@+id/bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:textSize="35sp"
-        android:text="@string/lbl_botom" />
-    <TextView
-        android:id="@+id/left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:textSize="35sp"
-        android:layout_below="@+id/arriba"
-        android:text="@string/lbl_left" />
-    <TextView
-        android:id="@+id/right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:textSize="35sp"
-        android:layout_below="@+id/arriba"
-        android:text="@string/lbl_right" />
+        android:text="@string/lbl_recycler"
+        android:layout_margin="16dp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/arriba"
+        android:background="@color/app_azul"
+        android:layout_margin="16dp"/>
+
 </RelativeLayout>
