@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="download_view">
+        <attr name="color_fondo" format="color"/>
+        <attr name="color_borde" format="color"/>
+    </declare-styleable>
+
+</resources>

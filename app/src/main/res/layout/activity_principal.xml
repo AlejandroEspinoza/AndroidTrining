@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,4 +16,19 @@
             android:layout_height="wrap_content"/>
     </android.support.v4.view.ViewPager>
 
-</LinearLayout>
+    <FrameLayout
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center">
+        <com.android.training.androidtrining.customcontrol.DownloaderView
+            android:id="@+id/downloader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="35sp"
+            android:text="Cargando"
+            android:padding="10dp"
+            custom:color_fondo="@color/app_verde"
+            custom:color_borde="@color/app_rojo"/>
+    </FrameLayout>
+
+</FrameLayout>
