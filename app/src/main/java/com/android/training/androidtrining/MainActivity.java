@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
                     PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
             );
+        } else {
+            downloader.setAccesosAprobados(true);
         }
 
         Log.i( TAG, "On Create");
@@ -83,7 +85,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        downloader.iniciarDescarga();
+        downloader.iniciarDescarga(
+                "http://www.agirregabiria.net/g/sylvainaitor/",
+                "principito.pdf"
+        );
     }
 
     private class Adaptador extends FragmentPagerAdapter {

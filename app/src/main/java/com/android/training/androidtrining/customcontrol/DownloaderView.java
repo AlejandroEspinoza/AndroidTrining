@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.nfc.Tag;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -15,6 +16,12 @@ import android.widget.TextView;
 
 import com.android.training.androidtrining.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,6 +53,8 @@ public class DownloaderView extends TextView {
 
     boolean permisosAprobados = false;
 
+    Context context;
+
     public DownloaderView(Context context){
         this(context, null);
     }
@@ -60,6 +69,8 @@ public class DownloaderView extends TextView {
 
     public DownloaderView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+
+        this.context = context;
 
         // Configuracion
         setText("0%");
@@ -140,9 +151,9 @@ public class DownloaderView extends TextView {
         this.permisosAprobados = permisosAprobados;
     }
 
-    public boolean iniciarDescarga(){
+    public boolean iniciarDescarga( String targetURL, String fileName ){
         if( permisosAprobados ) {
-            DownloaderTask task = new DownloaderTask(this);
+            DownloaderTask task = new DownloaderTask(context, this, targetURL, fileName);
             task.execute();
             return true;
         } else {
@@ -188,10 +199,16 @@ public class DownloaderView extends TextView {
     }
 
     private class DownloaderTask extends AsyncTask<Void, Integer, Void>{
-        DownloaderView downloader;
+        private DownloaderView downloader;
+        private Context contexto;
+        private String targetURL;
+        private String fileName;
 
-        public DownloaderTask( DownloaderView downloader ){
+        public DownloaderTask( Context context,  DownloaderView downloader, String targetURL, String fileName ){
             this.downloader = downloader;
+            this.targetURL = targetURL;
+            this.fileName = fileName;
+            this.contexto = context;
         }
 
         @Override
@@ -203,19 +220,95 @@ public class DownloaderView extends TextView {
 
         @Override
         protected Void doInBackground(Void... voids) {
+            FileOutputStream fos = null;
+            InputStream is = null;
+            File file = null;
+            float length = 0;
+            int bytes;
+            float progress;
+
+            int porcentage = 0;
+            int lastPorcentage = 0;
+
             Log.i(TAG, "doInBackground");
             try {
-                for (int i = 0; i <= 100 ; i++) {
-                    Log.i(TAG, "Progress update " + i );
-                    TimeUnit.MILLISECONDS.sleep(100);
-                    publishProgress( i );
+
+                // Validando que se tenga el nombre y url del archivo
+                if( targetURL == null || fileName == null ){
+                    return null;
+                }
+
+                // Se crea la conexion con el servidor
+                URL url = new URL(targetURL + fileName );
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setConnectTimeout(20000);
+                connection.setReadTimeout(20000);
+                connection.setRequestMethod(contexto.getString(R.string.download_method));
+                connection.setDoInput(true);
+
+                // Se obtiene el tamaño del contenido
+                List<String> content = connection.getHeaderFields().get("content-Length");
+                if(content == null || content.size() < 1 ){
+                    return null;
+                } else {
+                    for (String element : content) {
+                        length += Integer.parseInt(element);
+                    }
+                }
+
+                // Se establece la conexion para la descarga
+                connection.connect();
+                is = connection.getInputStream();
+
+                // Se crea el archivo en el almacenamiento del dispositivo
+                String filePath = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator + fileName;
+                file = new File( filePath );
+                if( file.exists() ) {
+                    file.delete();
+                } else {
+                    file.mkdirs();
+                }
+
+                // Se inicia la descarga
+                fos = new FileOutputStream( file );
+                while((bytes = is.read()) != -1 ){
+
+                    // Se escriben los bytes leidos en el dispositivo
+                    fos.write( bytes );
+
+                    // Se obtiene el porcentaje de progreso
+                    progress = ((file.length() * 100) /  length );
+                    porcentage = Math.round(progress);
+
+                    // Se publica el porcentaje en caso que sea requerido
+                    if( porcentage != lastPorcentage ){
+                        lastPorcentage = porcentage;
+                        publishProgress(  lastPorcentage );
+                    }
                 }
 
                 TimeUnit.SECONDS.sleep(3);
-
             } catch ( Exception ex ){
                 Log.i(TAG, ex.getMessage());
                 return null;
+            }finally {
+
+                // Liberando recursos
+                try {
+                    if( fos != null ) {
+                        fos.close();
+                    }
+                }catch ( Exception ex ){
+                    Log.i(TAG, ex.getMessage());
+                }
+                try{
+                    if( is != null ){
+                        is.close();
+                    }
+                } catch (Exception ex){
+                    Log.i(TAG, ex.getMessage());
+                }
             }
 
             return null;
