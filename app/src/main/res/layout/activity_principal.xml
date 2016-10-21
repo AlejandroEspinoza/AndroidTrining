@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"/>
     </android.support.v4.view.ViewPager>
 
-    <FrameLayout
+    <!-- FrameLayout
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_gravity="center">
@@ -29,6 +29,6 @@
             android:padding="10dp"
             custom:color_fondo="@color/app_verde"
             custom:color_borde="@color/app_rojo"/>
-    </FrameLayout>
+    </FrameLayout -->
 
 </FrameLayout>
