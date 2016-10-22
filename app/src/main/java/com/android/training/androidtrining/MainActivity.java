@@ -3,6 +3,7 @@ package com.android.training.androidtrining;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,10 +25,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.android.training.androidtrining.api.BuscadorListener;
 import com.android.training.androidtrining.customcontrol.DownloaderService;
 import com.android.training.androidtrining.customcontrol.DownloaderView;
+import com.android.training.androidtrining.database.DBManager;
+import com.android.training.androidtrining.modelos.Libro;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements DownloaderActivit
         tabLayout.setupWithViewPager(viewPager);
         pagerAdapter.cargarPaginas();
     }
+
 
     @Override
     protected void onResume() {

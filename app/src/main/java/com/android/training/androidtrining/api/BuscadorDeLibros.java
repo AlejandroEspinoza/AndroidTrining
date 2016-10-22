@@ -68,7 +68,7 @@ public class BuscadorDeLibros extends AsyncTask<String, Libro, Void> {
                     try {
                         Libro libro = new Libro();
                         libro.setAutor(autorElement.text());
-                        libro.setImagenUrl(imageElement.attr(NODE_SOURCE));
+                        libro.setImagenUrl( BOOKS_URL +  imageElement.attr(NODE_SOURCE));
                         libro.setUrl(pageLinkElement.attr(NODE_REFERENCE));
                         libro.setTitulo(tituloElement.text());
 

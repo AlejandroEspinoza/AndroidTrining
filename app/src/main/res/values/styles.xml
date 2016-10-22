@@ -8,4 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="row_labels">
+        <item name="android:textColor">@color/app_blanco</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
 </resources>

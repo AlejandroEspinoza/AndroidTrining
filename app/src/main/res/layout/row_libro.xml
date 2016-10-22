@@ -2,12 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:elevation="5dp">
 
     <ImageView
         android:id="@+id/imagen"
-        android:layout_width="100dp"
-        android:layout_height="200dp" />
+        android:layout_width="140dp"
+        android:layout_height="210dp"
+        android:scaleType="fitXY"/>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -16,16 +19,16 @@
         android:orientation="vertical">
 
         <TextView
+            style="@style/row_labels"
             android:id="@+id/titulo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"/>
+            android:layout_height="wrap_content"/>
 
         <TextView
+            style="@style/row_labels"
             android:id="@+id/autor"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"/>
+            android:layout_height="wrap_content"/>
 
         <com.android.training.androidtrining.customcontrol.DownloaderView
             android:id="@+id/descarga"

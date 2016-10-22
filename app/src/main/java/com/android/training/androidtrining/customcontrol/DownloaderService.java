@@ -3,15 +3,28 @@ package com.android.training.androidtrining.customcontrol;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.android.training.androidtrining.R;
+import com.android.training.androidtrining.database.DBManager;
 import com.android.training.androidtrining.modelos.Libro;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +38,8 @@ public class DownloaderService extends Service {
     private HiloDeDescarga tarea = null;
     private final DownloaderBinder binder = new DownloaderBinder();
     private Context contexto;
+
+    public static final String NUEVO_LIBRO = "NUEVO_LIBRO";
 
     public class DownloaderBinder extends Binder {
         public DownloaderService getService(){
@@ -91,8 +106,15 @@ public class DownloaderService extends Service {
             return;
         }
 
+        // Se registra en la pila el lbro descargado
         pila.remove( libro.getTitulo() );
         completados.put( libro.getTitulo(), libro);
+
+        // Se guarda el nuevo libro en la base de datos
+        DBManager.getInstance(getApplicationContext()).guardarLibro(libro);
+
+        // Se public la insercion del nuevo libro
+        sendBroadcast( new Intent(NUEVO_LIBRO));
 
         tarea = null;
 
@@ -129,49 +151,30 @@ public class DownloaderService extends Service {
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            libro.setImagenFile(
+                    Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS).getPath() +
+                            File.separator +
+                            libro.getTitulo() + "_" + libro.getAutor() + ".jpg"
+            );
+
+            libro.setPdfFile(
+                    Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS).getPath() +
+                            File.separator +
+                            libro.getTitulo() + "_" + libro.getAutor() + ".pdf"
+            );
+
+            Picasso.with(getApplicationContext())
+                    .load(libro.getImagenUrl())
+                    .into( new ImageDownloadTarget( libro ));
+        }
+
+        @Override
         protected Libro doInBackground(Void... objects) {
-            for (int i = 0; i < 100 ; i++ ){
-                try{
-                    TimeUnit.MILLISECONDS.sleep(500);
-                } catch (Exception ex ){
-                    Log.i(TAG, ex.getMessage());
-                }
-                publishProgress( i );
-            }
-
-            return libro;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer[] values) {
-            super.onProgressUpdate(values);
-
-            libro.setProgresoDescarga( values[0] );
-            synchronized (DownloaderService.this){
-                DownloaderService.this.notifyAll();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Libro libro) {
-            super.onPostExecute(libro);
-
-            setDescargaCompleta(libro);
-            Log.i(TAG, "END  DOWNLOAD Libro: " + libro.getTitulo());
-        }
-    }
-}
-
-
-
-
-
-
-
-
-/*
-@Override
-        protected Void doInBackground(Void... voids) {
             FileOutputStream fos = null;
             InputStream is = null;
             File file = null;
@@ -186,12 +189,12 @@ public class DownloaderService extends Service {
             try {
 
                 // Validando que se tenga el nombre y url del archivo
-                if( targetURL == null || fileName == null ){
+                if( libro.getPdfUrl() == null ){
                     return null;
                 }
 
                 // Se crea la conexion con el servidor
-                URL url = new URL(targetURL + fileName );
+                URL url = new URL(libro.getPdfUrl() );
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setConnectTimeout(20000);
                 connection.setReadTimeout(20000);
@@ -213,9 +216,7 @@ public class DownloaderService extends Service {
                 is = connection.getInputStream();
 
                 // Se crea el archivo en el almacenamiento del dispositivo
-                String filePath = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator + fileName;
-                file = new File( filePath );
+                file = new File( libro.getPdfFile() );
 
                 if( file.exists() ) {
                     is.skip(file.length());
@@ -240,8 +241,6 @@ public class DownloaderService extends Service {
                         publishProgress(  lastPorcentage );
                     }
                 }
-
-                TimeUnit.SECONDS.sleep(3);
             } catch ( Exception ex ){
                 Log.i(TAG, ex.getMessage());
                 return null;
@@ -264,6 +263,60 @@ public class DownloaderService extends Service {
                 }
             }
 
-            return null;
+            return libro;
         }
- */
+
+        @Override
+        protected void onProgressUpdate(Integer[] values) {
+            super.onProgressUpdate(values);
+
+            libro.setProgresoDescarga( values[0] );
+            synchronized (DownloaderService.this){
+                DownloaderService.this.notifyAll();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Libro libro) {
+            super.onPostExecute(libro);
+
+            setDescargaCompleta(libro);
+            Log.i(TAG, "END  DOWNLOAD Libro: " + libro.getTitulo());
+        }
+    }
+
+    private class ImageDownloadTarget implements Target {
+        private Libro libro;
+        public ImageDownloadTarget( Libro libro ){
+            this.libro = libro;
+        }
+
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            if( libro == null || libro.getImagenFile() == null ){
+                return;
+            }
+
+            try{
+                File archivo = new File( libro.getImagenFile() );
+                archivo.createNewFile();
+                FileOutputStream fos = new FileOutputStream(archivo);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+                fos.flush();
+                fos.close();
+            } catch (Exception ex){
+                Log.e(TAG, ex.getMessage());
+            }
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+        }
+    }
+}

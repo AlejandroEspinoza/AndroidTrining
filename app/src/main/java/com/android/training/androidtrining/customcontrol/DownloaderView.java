@@ -111,9 +111,11 @@ public class DownloaderView extends TextView {
         ta.recycle();
 
         ta = context.obtainStyledAttributes( attrs, R.styleable.download_view );
-        colorFondo = ta.getColor(R.styleable.download_view_color_fondo, ContextCompat.getColor(context, R.color.app_verde));
-        colorBorde = ta.getColor(R.styleable.download_view_color_borde, ContextCompat.getColor(context, R.color.app_verde));
+        colorFondo = ta.getColor(R.styleable.download_view_color_fondo, ContextCompat.getColor(context, R.color.app_blanco));
+        colorBorde = ta.getColor(R.styleable.download_view_color_borde, ContextCompat.getColor(context, R.color.app_blanco));
         ta.recycle();
+
+        setTextColor( ContextCompat.getColor(context, R.color.app_blanco) );
 
         // Se obtiene el borde del arco desde el archivo "dimensions"
         anchoBorde = context.getResources().getDimension(R.dimen.download_stroke);
