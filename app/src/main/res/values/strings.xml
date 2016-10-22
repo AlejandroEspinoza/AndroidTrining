@@ -27,4 +27,9 @@
     <string name="lbl_once">Once</string>
 
     <string name="download_method">GET</string>
+
+    <string name="titulo_buscador">Buscar libros</string>
+    <string name="titulo_mis_libros">Mis libros"</string>
+
+    <string name="hint_buscar_libro">Escribe el nombre de un libro</string>
 </resources>
