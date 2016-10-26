@@ -87,7 +87,7 @@ public class DownloaderView extends TextView {
 
         this.context = context;
 
-        // Se alinea el contenido al centro
+        // Se alinea el contenido al centroa
         setGravity(Gravity.CENTER);
 
         // Se limpia el fondo de la vista

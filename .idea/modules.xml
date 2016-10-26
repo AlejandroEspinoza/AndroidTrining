@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidTrining.iml" filepath="$PROJECT_DIR$/AndroidTrining.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidPreparation.iml" filepath="$PROJECT_DIR$/AndroidPreparation.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

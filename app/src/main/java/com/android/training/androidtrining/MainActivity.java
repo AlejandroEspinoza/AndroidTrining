@@ -25,8 +25,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.android.training.androidtrining.api.BuscadorListener;
+import com.android.training.androidtrining.basededatos.BaseDeDatos;
 import com.android.training.androidtrining.customcontrol.DownloaderService;
 import com.android.training.androidtrining.customcontrol.DownloaderView;
+import com.android.training.androidtrining.modelos.Libro;
 
 import java.util.ArrayList;
 import java.util.List;

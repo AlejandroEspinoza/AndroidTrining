@@ -9,4 +9,5 @@ import com.android.training.androidtrining.modelos.Libro;
 public interface BuscadorListener {
     public void addLibro( Libro libro );
     public void addDownloaderService(DownloaderService service );
+    public void tareaTerminada(boolean resultado);
 }

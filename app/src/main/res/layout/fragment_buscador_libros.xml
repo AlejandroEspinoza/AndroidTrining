@@ -9,7 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_buscar_libro"
-        android:layout_margin="10dp"/>
+        android:layout_margin="10dp"
+        android:inputType="text"
+        android:maxLines="1"
+        android:imeOptions="actionGo"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"

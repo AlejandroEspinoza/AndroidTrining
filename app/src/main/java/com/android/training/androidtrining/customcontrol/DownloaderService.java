@@ -3,15 +3,29 @@ package com.android.training.androidtrining.customcontrol;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.android.training.androidtrining.R;
+import com.android.training.androidtrining.basededatos.BaseDeDatos;
 import com.android.training.androidtrining.modelos.Libro;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -93,6 +107,9 @@ public class DownloaderService extends Service {
 
         pila.remove( libro.getTitulo() );
         completados.put( libro.getTitulo(), libro);
+        BaseDeDatos.getInstance(getApplicationContext()).addLibro(libro);
+
+        sendBroadcast( new Intent("LIBRO_DESCARGADO") );
 
         tarea = null;
 
@@ -129,49 +146,34 @@ public class DownloaderService extends Service {
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            /*
+            libro.setImagenFile( Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator +
+                    libro.getTitulo() + "_" + libro.getAutor() + ".jpg" );
+
+            libro.setPdfFile( Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator +
+                    libro.getTitulo() + "_" + libro.getAutor() + ".pdf");
+            */
+
+            libro.setImagenFile( //getFilesDir().getAbsolutePath() + File.separator +
+                    libro.getTitulo() + "_" + libro.getAutor() + ".jpg" );
+
+            libro.setPdfFile( //getFilesDir().getAbsolutePath() + File.separator +
+                    libro.getTitulo() + "_" + libro.getAutor() + ".pdf");
+
+            libro.setImagenFile( libro.getImagenFile().replaceAll(" ", "_") );
+            libro.setPdfFile( libro.getPdfFile().replaceAll(" ", "_") );
+
+            // Descargar imagen
+            Picasso.with(getApplicationContext()).load(libro.getImagenUrl()).into(new ImagenTarget(libro));
+        }
+
+        @Override
         protected Libro doInBackground(Void... objects) {
-            for (int i = 0; i < 100 ; i++ ){
-                try{
-                    TimeUnit.MILLISECONDS.sleep(500);
-                } catch (Exception ex ){
-                    Log.i(TAG, ex.getMessage());
-                }
-                publishProgress( i );
-            }
-
-            return libro;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer[] values) {
-            super.onProgressUpdate(values);
-
-            libro.setProgresoDescarga( values[0] );
-            synchronized (DownloaderService.this){
-                DownloaderService.this.notifyAll();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Libro libro) {
-            super.onPostExecute(libro);
-
-            setDescargaCompleta(libro);
-            Log.i(TAG, "END  DOWNLOAD Libro: " + libro.getTitulo());
-        }
-    }
-}
-
-
-
-
-
-
-
-
-/*
-@Override
-        protected Void doInBackground(Void... voids) {
             FileOutputStream fos = null;
             InputStream is = null;
             File file = null;
@@ -186,12 +188,12 @@ public class DownloaderService extends Service {
             try {
 
                 // Validando que se tenga el nombre y url del archivo
-                if( targetURL == null || fileName == null ){
+                if( libro.getPdfUrl() == null ){
                     return null;
                 }
 
                 // Se crea la conexion con el servidor
-                URL url = new URL(targetURL + fileName );
+                URL url = new URL(libro.getPdfUrl() );
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setConnectTimeout(20000);
                 connection.setReadTimeout(20000);
@@ -213,16 +215,18 @@ public class DownloaderService extends Service {
                 is = connection.getInputStream();
 
                 // Se crea el archivo en el almacenamiento del dispositivo
-                String filePath = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator + fileName;
-                file = new File( filePath );
+                file = getFileStreamPath( libro.getPdfFile() );
 
+                fos = openFileOutput(libro.getPdfFile(), Context.MODE_PRIVATE);
+
+                /*
                 if( file.exists() ) {
                     is.skip(file.length());
                     fos = new FileOutputStream( file, true);
                 } else {
                     fos = new FileOutputStream( file );
                 }
+                */
 
                 // Se inicia la descarga
                 while((bytes = is.read()) != -1 ){
@@ -240,8 +244,6 @@ public class DownloaderService extends Service {
                         publishProgress(  lastPorcentage );
                     }
                 }
-
-                TimeUnit.SECONDS.sleep(3);
             } catch ( Exception ex ){
                 Log.i(TAG, ex.getMessage());
                 return null;
@@ -264,6 +266,68 @@ public class DownloaderService extends Service {
                 }
             }
 
-            return null;
+            return libro;
         }
- */
+
+        @Override
+        protected void onProgressUpdate(Integer[] values) {
+            super.onProgressUpdate(values);
+
+            libro.setProgresoDescarga( values[0] );
+            synchronized (DownloaderService.this){
+                DownloaderService.this.notifyAll();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Libro libro) {
+            super.onPostExecute(libro);
+
+            if( libro != null ) {
+                setDescargaCompleta(libro);
+                Log.i(TAG, "END  DOWNLOAD Libro: " + libro.getTitulo());
+            }
+        }
+    }
+
+    private class ImagenTarget implements Target {
+        private Libro libro;
+        public ImagenTarget( Libro libro ){
+            this.libro = libro;
+        }
+
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            if( libro == null || libro.getTitulo() == null || libro.getAutor() == null ){
+                return;
+            }
+
+            try {
+
+                /* File file = new File( libro.getImagenFile() );
+                file.createNewFile();
+                FileOutputStream ostream = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, ostream);
+                ostream.flush();
+                ostream.close(); */
+
+                FileOutputStream fos = openFileOutput(libro.getImagenFile(), Context.MODE_PRIVATE);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+                fos.flush();
+                fos.close();
+            } catch (IOException e) {
+                Log.e("IOException", e.getLocalizedMessage());
+            }
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+        }
+    }
+}
